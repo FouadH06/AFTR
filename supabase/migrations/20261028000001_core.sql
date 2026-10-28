@@ -587,6 +587,11 @@ begin
     'checked_in_at', case when v_result in ('admitted', 'already_used') then v_t.checked_in_at end);
 end $$;
 
+create or replace function find_user_id(p_email text) returns uuid
+language sql stable security definer set search_path = public, auth as $$
+  select id from auth.users where lower(email) = lower(p_email) limit 1
+$$;
+
 -- Lock down function execution: only the server (service_role) may call privileged functions.
 revoke execute on all functions in schema public from public, anon, authenticated;
 grant execute on function has_role(app_role[], uuid) to anon, authenticated;
