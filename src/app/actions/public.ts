@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { getBrand } from "@/lib/brand";
 import { emailConfigured, sendEmail } from "@/lib/email";
-import { env, isConfigured } from "@/lib/env";
+import { env, isConfigured, missingConfig } from "@/lib/env";
 import { checkOrderKey, orderKey, orderUrl } from "@/lib/keys";
 import { orderError, sendTicketEmail } from "@/lib/orders";
 import { activeProvider, sandbox } from "@/lib/payments";
@@ -152,7 +152,7 @@ const authSchema = z.object({ email: z.email("Enter a valid email").trim().toLow
 const safeNext = (n?: string) => (n && n.startsWith("/") && !n.startsWith("//") ? n : "/account");
 
 export async function signIn(_: FormState, fd: FormData): Promise<FormState> {
-  if (!isConfigured()) return { error: "Auth is not configured." };
+  if (!isConfigured()) return { error: `Auth is not configured. Missing on the server: ${missingConfig().join(", ")}` };
   const p = authSchema.safeParse(Object.fromEntries(fd));
   if (!p.success) return { error: p.error.issues[0].message };
   if (!(await rateLimit("login", 10, 600))) return { error: "Too many attempts. Try again later." };
@@ -162,7 +162,7 @@ export async function signIn(_: FormState, fd: FormData): Promise<FormState> {
 }
 
 export async function signUp(_: FormState, fd: FormData): Promise<FormState> {
-  if (!isConfigured()) return { error: "Auth is not configured." };
+  if (!isConfigured()) return { error: `Auth is not configured. Missing on the server: ${missingConfig().join(", ")}` };
   const p = authSchema.safeParse(Object.fromEntries(fd));
   if (!p.success) return { error: p.error.issues[0].message };
   if (!(await rateLimit("signup", 5, 3600))) return { error: "Too many attempts. Try again later." };

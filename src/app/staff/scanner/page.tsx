@@ -1,6 +1,6 @@
 import { SetupRequired } from "@/components/ui";
 import { requireRole } from "@/lib/auth";
-import { isConfigured } from "@/lib/env";
+import { isConfigured, missingConfig } from "@/lib/env";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { Scanner } from "./Scanner";
 
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Door scanner", robots: { index: false } };
 
 export default async function ScannerPage() {
-  if (!isConfigured()) return <SetupRequired />;
+  if (!isConfigured()) return <SetupRequired missing={missingConfig()} />;
   const s = await requireRole(["door_staff", "event_manager"], null, "/staff/scanner");
   const global = s.roles.some((r) => r.role === "super_admin" || ((r.role === "door_staff" || r.role === "event_manager") && !r.event_id));
   const assigned = s.roles.filter((r) => r.event_id && (r.role === "door_staff" || r.role === "event_manager")).map((r) => r.event_id!);

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { SetupRequired } from "@/components/ui";
 import { can, requireRole } from "@/lib/auth";
-import { isConfigured } from "@/lib/env";
+import { isConfigured, missingConfig } from "@/lib/env";
 import { getBrand } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin", robots: { index: false } };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  if (!isConfigured()) return <SetupRequired />;
+  if (!isConfigured()) return <SetupRequired missing={missingConfig()} />;
   const s = await requireRole(["event_manager", "finance"], null, "/admin");
   const brand = await getBrand();
   const nav = [

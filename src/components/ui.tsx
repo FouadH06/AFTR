@@ -65,10 +65,10 @@ export function Notice({ tone = "warn", children }: { tone?: "warn" | "bad" | "o
   return <div className={`rounded-xl border px-4 py-3 text-sm ${c}`}>{children}</div>;
 }
 
-export function SetupRequired() {
+export function SetupRequired({ missing = [] }: { missing?: string[] }) {
   return (
     <div className="mx-auto max-w-xl p-6">
-      <Notice>Setup required: Supabase environment variables and TICKET_SIGNING_SECRET are not configured. See README.md.</Notice>
+      <Notice>Setup required. Missing on the server: {missing.join(", ") || "Supabase / signing settings"}. Add them in your hosting environment variables and redeploy. See README.md.</Notice>
     </div>
   );
 }

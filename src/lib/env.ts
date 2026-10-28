@@ -13,4 +13,13 @@ export const env = {
   superAdminEmails: (process.env.SUPER_ADMIN_EMAILS ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean),
 };
 
-export const isConfigured = () => Boolean(env.supabaseUrl && env.supabaseAnonKey && env.serviceRoleKey && env.signingSecret.length >= 32);
+/** Names (never values) of required settings that are missing or invalid. */
+export function missingConfig(): string[] {
+  const m: string[] = [];
+  if (!env.supabaseUrl) m.push("NEXT_PUBLIC_SUPABASE_URL");
+  if (!env.supabaseAnonKey) m.push("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  if (!env.serviceRoleKey) m.push("SUPABASE_SERVICE_ROLE_KEY");
+  if (env.signingSecret.length < 32) m.push(`TICKET_SIGNING_SECRET (${env.signingSecret.length ? "shorter than 32 characters" : "missing"})`);
+  return m;
+}
+export const isConfigured = () => missingConfig().length === 0;

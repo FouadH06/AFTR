@@ -1,7 +1,7 @@
 import { CopyButton } from "@/components/client";
 import { SetupRequired, Stat, StatusBadge } from "@/components/ui";
 import { requireRole } from "@/lib/auth";
-import { env, isConfigured } from "@/lib/env";
+import { env, isConfigured, missingConfig } from "@/lib/env";
 import { usd } from "@/lib/money";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { fmtDate } from "@/lib/time";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Promoter", robots: { index: false } };
 
 export default async function PromoterPage() {
-  if (!isConfigured()) return <SetupRequired />;
+  if (!isConfigured()) return <SetupRequired missing={missingConfig()} />;
   const s = await requireRole(["promoter"], null, "/promoter");
   const db = supabaseAdmin();
   const { data: p } = await db.from("promoters").select("*").eq("user_id", s.user.id).maybeSingle();
